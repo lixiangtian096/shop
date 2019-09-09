@@ -1,0 +1,148 @@
+
+.index{
+    padding-bottom: 80px;
+    swiper-item{
+        image{
+            width: 100%;
+        }
+    }
+    .comment{
+        width: 100%;
+        .comment-title{
+            text-align: center;
+            font-size: 40px;
+            margin: 40px auto;
+        }
+        .comment-list{
+            .comment-item{
+                margin: 20px auto;
+                width: 90%;
+                display: flex;
+                .user-info{
+                    margin-left: 10px;
+                    image{
+                        width:80px;
+                        height: 80px;
+                        border-radius: 80px;
+                        display: block;
+                    }
+                    text{
+                        display: block;
+                        margin-top: 1px;
+                        text-align: center;
+                    }
+                }
+                .user-speech{
+                    position: relative;
+                    margin-left:40px;
+                    background: #fff;
+                    width: 80%;
+                    border-radius: 10px;
+                    padding: 10px;
+                    &::before {
+                        content:"";
+                        position: absolute;
+                        right: 100%;
+                        top: 26px;
+                        width: 0;
+                        height: 0;
+                        border-top: 13px solid transparent;
+                        border-right: 26px solid #fff;
+                        border-bottom: 13px solid transparent;
+                    }
+                }
+            }
+        }
+        .edit-speech{
+            border-radius: 10px;
+            width: calc(100% - 80px);
+            margin:auto;
+            button{
+                margin:40px auto;
+            }
+        }
+    }
+    .bottom-tip{
+        position: fixed;
+        display: flex;
+        bottom: 0px;
+        width: 100%;
+        padding: 0px;
+        background: #fff;
+        .heart {
+            width: 30px;
+            height: 30px;
+            background-color: red;
+            // border: 1px solid black; 
+        }
+        .nocollect{
+            background: #e5e5e5;
+        }
+        #square,#circle2 {
+            margin-top: -15px;
+            float: left;
+        }
+        
+        #circle2 {
+            margin-left: -15px;
+        }
+        
+        #circle1,#circle2 {
+            border-radius: 15px
+        }
+        #rotate {
+            transform: rotate(-45deg);
+            width: 100px;
+            height: 30px;
+            margin-left: 30px;
+        }
+        .btn {
+            max-width: 300px;
+            min-width: 150px;
+            float: right;
+            height: 80px;
+            font-size: 28px;
+            border-radius: 0px;
+            margin-right:1px;
+            display: block;
+            border: none;
+        }
+        .coll-btn{
+            margin-left: 10px;
+            width: 200px;
+        }
+        .share-btn{
+            background: #fae3d9;
+            color: #8ac6d1;
+            width: 200px;
+        }
+        .contact-btn{
+            background: #bbded6;
+            color: #8ac6d1; 
+            width: 230px;
+        }
+    }
+    .contact-tip{
+        position: fixed;
+        right: -15px;
+        bottom:100px;
+        padding: 0px;
+        height: 150px;
+        background: transparent;
+        border: none;
+        image{
+            transform: rotate(-30deg);
+            width: 100px;
+            right: 0px;
+            height: 150px;
+        }
+        &::before {
+            content:"";
+            position: absolute;
+            width:280px;
+            right: 100px;
+            height: 100px;
+        }
+        
+    }
+}
