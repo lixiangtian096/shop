@@ -3,7 +3,7 @@ import Taro, { Component, Config } from '@tarojs/taro'
 import { Provider } from '@tarojs/redux'
 
 import Index from './pages/index'
-import Detail from './detail/index'
+
 
 import configStore from './store'
 
@@ -14,8 +14,8 @@ import './app.less'
 // if (process.env.NODE_ENV !== 'production' && process.env.TARO_ENV === 'h5')  {
 //   require('nerv-devtools')
 // }
-
 const store = configStore()
+wx.cloud.init()
 
 class App extends Component {
 
@@ -26,10 +26,13 @@ class App extends Component {
    * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
    * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
    */
+  constructor(){
+    super()
+  }
   config: Config = {
     pages: [
-      'pages/detail/index',
       'pages/index/index',
+      'pages/detail/index',
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -39,7 +42,9 @@ class App extends Component {
     }
   }
 
-  componentDidMount () {}
+  componentDidMount () {
+    console.log(window)
+  }
 
   componentDidShow () {}
 
@@ -50,9 +55,10 @@ class App extends Component {
   // 在 App 类中的 render() 函数没有实际作用
   // 请勿修改此函数
   render () {
+    // const {cloud} = this.state
     return (
       <Provider store={store}>
-        <Index />
+        <Index s={{w:123}}/>
       </Provider>
     )
   }

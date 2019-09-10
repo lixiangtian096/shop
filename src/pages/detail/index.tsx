@@ -2,6 +2,7 @@ import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Image, Button, Text, Swiper, SwiperItem, ScrollView, Navigator} from '@tarojs/components'
 import { connect } from '@tarojs/redux'
+import Cloud from '../../utils/util'
 
 import { add, minus, asyncAdd } from '../../actions/counter'
 
@@ -64,14 +65,10 @@ class Detail extends Component {
     constructor(){
       super()
       this.state ={
+        cloud :new Cloud('shop-mqydt','goods'),
         isCollect:false,
-        commentList:[
-            {userName:'张三',avtorUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',speech:'哎呦，不错哦'},
-            {userName:'张三',avtorUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',speech:'哎呦，不错哦'},
-            {userName:'张三',avtorUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',speech:'哎呦，不错哦'},
-            {userName:'张三',avtorUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',speech:'哎呦，不错哦'},
-            {userName:'张三',avtorUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',speech:'哎呦，不错哦'}
-        ],
+        detail:null,
+        commentList:[],
         shopList:[
           {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'1',type:'',data:'',attachType:''},
           {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'2',type:''},
@@ -92,12 +89,21 @@ class Detail extends Component {
   componentWillReceiveProps (nextProps) {
     console.log(this.props, nextProps)
   }
-
-  componentWillUnmount () { }
-
-  componentDidShow () { }
-
-  componentDidHide () { }
+  componentDidMount () {
+    const {cloud} = this.state
+    console.log(this.$router.params.id)
+    const comm = new Cloud('shop-mqydt','comment')
+    cloud.getData({_id:this.$router.params.id}).then(res=>{
+        this.setState({
+            detail:res.data[0] 
+        })
+    })
+    comm.getData({goodsId:this.$router.params.id}).then(res=>{
+        this.setState({
+            commentList:res.data[0].comment
+        })
+    })
+  }
 
   onShareAppMessage =()=>{
     return {
@@ -113,7 +119,7 @@ class Detail extends Component {
   }
 
   render () {
-    const {isCollect, commentList}=this.state
+    const {isCollect, commentList,detail}=this.state
     return (
       <View className='index'>
         <Swiper
@@ -124,20 +130,16 @@ class Detail extends Component {
           interval={3000}
           indicatorDots
           autoplay>
-          <SwiperItem>
-          <Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image>
-          </SwiperItem>
-          <SwiperItem>
-          <Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image>
-          </SwiperItem>
-          <SwiperItem>
-          <Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image>
-          </SwiperItem>
+            {detail.images.map(item=>{
+                return (<SwiperItem>
+                    <Image src={item}></Image>
+                </SwiperItem>)
+            })}
         </Swiper>
         <View>
             <View>藏品描述</View>
-            <View>名称:麻痹戒指</View>
-            <View>名称:颜色分类</View>
+            <View>名称:{detail.name}</View>
+            <View>相关信息:{detail.about}</View>
         </View>
         <View className="comment">
             <View className="comment-title">评论区</View>

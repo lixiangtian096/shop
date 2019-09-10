@@ -2,8 +2,8 @@ import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
 import { View, Image, Button, Text, Swiper, SwiperItem, ScrollView, Navigator} from '@tarojs/components'
 import { connect } from '@tarojs/redux'
-
 import { add, minus, asyncAdd } from '../../actions/counter'
+import Cloud from '../../utils/util'
 
 import './index.less'
 
@@ -53,7 +53,6 @@ interface Index {
   }
 }))
 class Index extends Component {
-
     /**
    * 指定config的类型声明为: Taro.Config
    *
@@ -64,6 +63,7 @@ class Index extends Component {
     constructor(){
       super()
       this.state ={
+        cloud :new Cloud('shop-mqydt','goods'),
         list:[
           {name:'女装',key:'nv'},
           {name:'包包',key:'nv'},
@@ -95,6 +95,15 @@ class Index extends Component {
   componentDidShow () { }
 
   componentDidHide () { }
+
+  componentDidMount(){
+    const {cloud} = this.state
+    cloud.getData({}).then(res=>{
+        this.setState({
+          shopList:res.data
+        })
+    })
+  }
 
   onScrollToUpper = (e) => {
    console.log(e.detail)
@@ -152,8 +161,8 @@ class Index extends Component {
         </ScrollView>
         <View className="shop-list">
           {shopList.map(item=>{
-            return <Navigator className="shop-item" url={`/pages/detail/index?id=${item.id}`}>
-              <Image src={item.imgUrl}></Image>
+            return <Navigator className="shop-item" url={`/pages/detail/index?id=${item._id}`}>
+              <Image src={item.images[0]}></Image>
               <Text>{item.name}</Text>
             </Navigator>
           })}
