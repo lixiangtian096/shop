@@ -32,18 +32,31 @@ class App extends Component {
   config: Config = {
     pages: [
       'pages/index/index',
+      'pages/issues/index',
       'pages/detail/index',
+      'pages/userInfo/index',
     ],
     window: {
       backgroundTextStyle: 'light',
       navigationBarBackgroundColor: '#fff',
       navigationBarTitleText: 'WeChat',
       navigationBarTextStyle: 'black'
-    }
+    },
+    tabBar: {
+      list: [
+        {
+          "pagePath": "pages/index/index",
+          "text": "首页"
+        },
+        {
+          "pagePath": "pages/userInfo/index",
+          "text": "个人中心"
+        }
+      ]
+    },
   }
 
   componentDidMount () {
-    console.log(window)
   }
 
   componentDidShow () {}
@@ -58,7 +71,7 @@ class App extends Component {
     // const {cloud} = this.state
     return (
       <Provider store={store}>
-        <Index s={{w:123}}/>
+        <Index/>
       </Provider>
     )
   }

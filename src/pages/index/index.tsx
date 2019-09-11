@@ -1,12 +1,13 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Image, Button, Text, Swiper, SwiperItem, ScrollView, Navigator} from '@tarojs/components'
+import { View, Image, Button, Text, Swiper, SwiperItem, ScrollView, Navigator } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 import { add, minus, asyncAdd } from '../../actions/counter'
 import Cloud from '../../utils/util'
 
 import './index.less'
 
+let scrolList = []
 // #region 书写注意
 //
 // 目前 typescript 版本还无法在装饰器模式下将 Props 注入到 Taro.Component 中的 props 属性
@@ -42,88 +43,91 @@ interface Index {
 @connect(({ counter }) => ({
   counter
 }), (dispatch) => ({
-  add () {
+  add() {
     dispatch(add())
   },
-  dec () {
+  dec() {
     dispatch(minus())
   },
-  asyncAdd () {
+  asyncAdd() {
     dispatch(asyncAdd())
   }
 }))
 class Index extends Component {
-    /**
-   * 指定config的类型声明为: Taro.Config
-   *
-   * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
-   * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
-   * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
-   */
-    constructor(){
-      super()
-      this.state ={
-        cloud :new Cloud('shop-mqydt','goods'),
-        list:[
-          {name:'女装',key:'nv'},
-          {name:'包包',key:'nv'},
-          {name:'首饰',key:'nv'},
-        ],
-        shopList:[
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'1',type:'',data:'',attachType:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'2',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'3',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'4',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'5',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'6',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'7',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'8',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'9',type:''},
-        ]
-      }
+  /**
+ * 指定config的类型声明为: Taro.Config
+ *
+ * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
+ * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
+ * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
+ */
+  constructor() {
+    super()
+    this.state = {
+      cloud: new Cloud('shop-mqydt'),
+      list: [],
+      shopList: [],
+      currentKey: 0,
     }
-    config: Config = {
+  }
+  config: Config = {
     navigationBarTitleText: '惠子家'
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps)
   }
 
-  componentWillUnmount () { }
+  componentWillUnmount() { }
 
-  componentDidShow () { }
+  componentDidShow() {
+    const { cloud } = this.state
+    cloud.getCollece('goods').getData({}).then(res => {
+      this.setState({
+        shopList: res.data
+      })
+      scrolList = res.data
+    })
+  }
 
-  componentDidHide () { }
+  componentDidHide() { }
 
-  componentDidMount(){
-    const {cloud} = this.state
-    cloud.getData({}).then(res=>{
-        this.setState({
-          shopList:res.data
-        })
+  componentDidMount() {
+    const { cloud } = this.state
+    cloud.getCollece('typeList').getData({}).then(res => {
+      console.log(res)
+      this.setState({
+        list: res.data
+      })
     })
   }
 
   onScrollToUpper = (e) => {
-   console.log(e.detail)
-  }
-  
-  onScroll(e){
     console.log(e.detail)
   }
-  render () {
-    const {list, shopList} =this.state
+
+  selectshop = (key) => {
+    const { cloud } = this.state
+    cloud.getCollece('goods').getData(key ? { type: key } : {}).then(res => {
+      this.setState({
+        shopList: res.data,
+        currentKey: key
+      })
+    })
+  }
+
+  render() {
+    const { list, shopList, currentKey } = this.state
     const scrollStyle = {
-      height: '30px'
+      height: '30px',
+      'white-space': 'nowrap'
     }
     const scrollTop = 0
     const Threshold = 20
     const vStyle = {
-      height: '150px',
-      display:'inline-block',
-      'text-align':'center',
-      width:'100px',
+      display: 'inline-block',
+      'text-align': 'center',
+      width: '100px',
     }
     return (
       <View className='index'>
@@ -135,15 +139,16 @@ class Index extends Component {
           interval={3000}
           indicatorDots
           autoplay>
-          <SwiperItem>
-            <Navigator url={`/pages/detail/index?id=`}><Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image></Navigator>
-          </SwiperItem>
-          <SwiperItem>
-          <Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image>
-          </SwiperItem>
-          <SwiperItem>
-          <Image src="https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg"></Image>
-          </SwiperItem>
+          {scrolList.map(item => {
+            if (item.status === "1") {
+              return (
+                <SwiperItem>
+                  <Navigator url={`/pages/detail/index?id=${item._id}`}><Image src={item.images[0]}></Image></Navigator>
+                </SwiperItem>
+              )
+            }
+          })
+          }
         </Swiper>
         <ScrollView
           scrollX
@@ -152,15 +157,15 @@ class Index extends Component {
           style={scrollStyle}
           lowerThreshold={Threshold}
           upperThreshold={Threshold}
-          onScrollToUpper={this.onScrollToUpper} 
-          onScroll={this.onScroll}
+          onScrollToUpper={this.onScrollToUpper}
         >
-          {list.map(item=>{
-            return <View style={vStyle} >{item.name}</View>
+          <View style={vStyle} className={`item  ${currentKey === 0 ? 'active' : 'type-item'}`} onClick={(e) => { this.selectshop(0) }}>全部</View>
+          {list.map(item => {
+            return <View style={vStyle} className={`item ${currentKey === item.key ? 'active' : 'type-item'}`} onClick={(e) => { this.selectshop(item.key) }}>{item.name}</View>
           })}
         </ScrollView>
         <View className="shop-list">
-          {shopList.map(item=>{
+          {shopList.map(item => {
             return <Navigator className="shop-item" url={`/pages/detail/index?id=${item._id}`}>
               <Image src={item.images[0]}></Image>
               <Text>{item.name}</Text>

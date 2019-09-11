@@ -1,18 +1,18 @@
 
 //获取云数据库集合
-export default class Cloud{
-    constructor(base, colle){
-        this.db=wx.cloud.database({
+export default class Cloud {
+    constructor(base) {
+        this.db = wx.cloud.database({
             env: base
         })
-        this.collect = this.db.collection(colle)
     }
     //选取集合
-    getCollece= function (colle) {
+    getCollece = function (colle) {
         this.collect = this.db.collection(colle)
+        return this
     }
     //查
-    getData= (payload)=>{
+    getData = (payload) => {
         return new Promise((resolve, reject) => {
             this.collect.where(payload).get({
                 success: res => {
@@ -29,7 +29,7 @@ export default class Cloud{
         })
     }
     //增
-    addData=(payload)=>{
+    addData = (payload) => {
         return new Promise((resolve, reject) => {
             this.collect.add({
                 data: payload,
@@ -48,7 +48,7 @@ export default class Cloud{
         })
     }
     //删
-    deleteData= (query)=> {
+    deleteData = (query) => {
         return new Promise((resolve, reject) => {
             this.collect.doc(query).remove({
                 success: res => {
@@ -64,8 +64,8 @@ export default class Cloud{
             })
         })
     }
-      //改
-    upData= (query, newData) =>{
+    //改
+    upData = (query, newData) => {
         return new Promise((resolve, reject) => {
             this.collect.doc(query).update({
                 data: newData,
@@ -82,5 +82,18 @@ export default class Cloud{
             })
         })
     }
+    uploadFile = (filePath,cloudPath) => {
+        return new Promise((rs, rj) => {
+            wx.cloud.uploadFile({
+                cloudPath:cloudPath, // 上传至云端的路径
+                filePath:filePath, // 小程序临时文件路径
+                success: res => {
+                    rs(res.fileID)
+                },
+                fail: err=>{
+                    rj(err)
+                }
+            })
+        })
+    }
 };
-

@@ -1,6 +1,6 @@
 import { ComponentClass } from 'react'
 import Taro, { Component, Config } from '@tarojs/taro'
-import { View, Image, Button, Text, Swiper, SwiperItem, ScrollView, Navigator} from '@tarojs/components'
+import { View, Image, Button, Text, Swiper, SwiperItem, Textarea } from '@tarojs/components'
 import { connect } from '@tarojs/redux'
 import Cloud from '../../utils/util'
 
@@ -43,83 +43,96 @@ interface Detail {
 @connect(({ counter }) => ({
   counter
 }), (dispatch) => ({
-  add () {
+  add() {
     dispatch(add())
   },
-  dec () {
+  dec() {
     dispatch(minus())
   },
-  asyncAdd () {
+  asyncAdd() {
     dispatch(asyncAdd())
   }
 }))
 class Detail extends Component {
 
-    /**
-   * 指定config的类型声明为: Taro.Config
-   *
-   * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
-   * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
-   * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
-   */
-    constructor(){
-      super()
-      this.state ={
-        cloud :new Cloud('shop-mqydt','goods'),
-        isCollect:false,
-        detail:null,
-        commentList:[],
-        shopList:[
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'1',type:'',data:'',attachType:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'2',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'3',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'4',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'5',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'6',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'7',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'8',type:''},
-          {name:'麻痹戒指',imgUrl:'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg',id:'9',type:''},
-        ]
-      }
+  /**
+ * 指定config的类型声明为: Taro.Config
+ *
+ * 由于 typescript 对于 object 类型推导只能推出 Key 的基本类型
+ * 对于像 navigationBarTextStyle: 'black' 这样的推导出的类型是 string
+ * 提示和声明 navigationBarTextStyle: 'black' | 'white' 类型冲突, 需要显示声明类型
+ */
+  constructor() {
+    super()
+    this.state = {
+      cloud: new Cloud('shop-mqydt'),
+      isCollect: false,
+      detail: null,
+      commentList: [],
+      comment: '',
+      shopList: []
     }
-    config: Config = {
+  }
+  config: Config = {
     navigationBarTitleText: '藏品详情'
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     console.log(this.props, nextProps)
   }
-  componentDidMount () {
-    const {cloud} = this.state
+  componentDidMount() {
+    const { cloud } = this.state
     console.log(this.$router.params.id)
-    const comm = new Cloud('shop-mqydt','comment')
-    cloud.getData({_id:this.$router.params.id}).then(res=>{
-        this.setState({
-            detail:res.data[0] 
-        })
+    cloud.getCollece('goods').getData({ _id: this.$router.params.id }).then(res => {
+      this.setState({
+        detail: res.data[0]
+      })
     })
-    comm.getData({goodsId:this.$router.params.id}).then(res=>{
-        this.setState({
-            commentList:res.data[0].comment
-        })
+    cloud.getCollece('comment').getData({ goodsId: this.$router.params.id }).then(res => {
+      this.setState({
+        commentList: res.data || []
+      })
     })
   }
 
-  onShareAppMessage =()=>{
+  onShareAppMessage = () => {
     return {
-        title: '234',
-        path: '/pages/default/index',
-        imageUrl: 'https://i.loli.net/2019/09/09/xvPQ15qjmbdFgGf.jpg'
+      title: this.state.detail.name,
+      path: `/pages/detail/inde?id=${this.$router.params.id}` ,
+      imageUrl:this.state.detail.images[0]
     }
   }
-  setCollect=()=>{
+  setComment = (e) => {
     this.setState({
-        isCollect:!this.state.isCollect
+      comment: e.target.value
+    })
+  }
+  seeComment = (e) => {
+    const { cloud, comment } = this.state
+
+    // cloud.getCollece('comment').addData(
+    //   {
+    //     goodsId: this.$router.params.id,
+    //     avtorUrl: 'https://lxt-block.oss-cn-beijing.aliyuncs.com/tmpImg/1567999499801.png',
+    //     userName: 'lisi',
+    //     speech: comment,
+    //   }).then(res => {
+    //     cloud.getData({ goodsId: this.$router.params.id }).then(res => {
+    //       this.setState({
+    //         commentList: res.data || [],
+    //         comment: ''
+    //       })
+    //     })
+    //   })
+  }
+  setCollect = () => {
+    this.setState({
+      isCollect: !this.state.isCollect
     })
   }
 
-  render () {
-    const {isCollect, commentList,detail}=this.state
+  render() {
+    const { isCollect, commentList, detail, comment } = this.state
     return (
       <View className='index'>
         <Swiper
@@ -130,47 +143,47 @@ class Detail extends Component {
           interval={3000}
           indicatorDots
           autoplay>
-            {detail.images.map(item=>{
-                return (<SwiperItem>
-                    <Image src={item}></Image>
-                </SwiperItem>)
-            })}
+          {detail.images.map(item => {
+            return (<SwiperItem>
+              <Image src={item}></Image>
+            </SwiperItem>)
+          })}
         </Swiper>
         <View>
-            <View>藏品描述</View>
-            <View>名称:{detail.name}</View>
-            <View>相关信息:{detail.about}</View>
+          <View>藏品描述</View>
+          <View>名称:{detail.name}</View>
+          <View>相关信息:{detail.about}</View>
         </View>
         <View className="comment">
-            <View className="comment-title">评论区</View>
-            <View className="comment-list">
-                {commentList.map(item=>{
-                    return <View className="comment-item">
-                        <View className="user-info">
-                            <Image src={item.avtorUrl}/>
-                            <Text>{item.userName}</Text>
-                        </View>
-                        <View className="user-speech">{item.speech}</View>
-                    </View>
-                })}
-            </View>
-            <View className="edit-speech">
-                <Textarea style='background:#f1f0cf; width:90%;height:160px;padding:10px 30rpx;'/>
-                <Button class="btn coll-btn" onClick={this.setCollect}>发表自己的评论</Button>
-            </View>
+          <View className="comment-title">评论区</View>
+          <View className="comment-list">
+            {commentList.map(item => {
+              return <View className="comment-item">
+                <View className="user-info">
+                  <Image src={item.avtorUrl} />
+                  <Text>{item.userName}</Text>
+                </View>
+                <View className="user-speech">{item.speech}</View>
+              </View>
+            })}
+          </View>
+          <View className="edit-speech">
+            <Textarea onInput={this.setComment} value={comment} style='background:#f1f0cf; width:90%;height:160px;padding:10px 30rpx;' />
+            <Button class="btn coll-btn" onClick={this.seeComment}>发表自己的评论</Button>
+          </View>
         </View>
         <View className="bottom-tip">
-            <View id="rotate">
-                <View class={isCollect?"heart":'heart nocollect'} id="circle1"></View>
-                <View class={isCollect?"heart":'heart nocollect'} id="square"></View>
-                <View class={isCollect?"heart":'heart nocollect'} id="circle2"></View>
-            </View>
-            <Button class="btn coll-btn" onClick={this.setCollect}>{!isCollect?'点击收藏':'取消收藏'}</Button>
-            <Button class="btn share-btn" open-type="share" onClick={this.onShareAppMessage}>找朋友围观</Button>
-            <Button class="btn contact-btn" open-type="contact" send-message-path>询问相关信息</Button>
+          <View id="rotate">
+            <View class={isCollect ? "heart" : 'heart nocollect'} id="circle1"></View>
+            <View class={isCollect ? "heart" : 'heart nocollect'} id="square"></View>
+            <View class={isCollect ? "heart" : 'heart nocollect'} id="circle2"></View>
+          </View>
+          <Button class="btn coll-btn" onClick={this.setCollect}>{!isCollect ? '点击收藏' : '取消收藏'}</Button>
+          <Button class="btn share-btn" open-type="share" onClick={this.onShareAppMessage}>找朋友围观</Button>
+          <Button class="btn contact-btn" open-type="contact" send-message-path>询问相关信息</Button>
         </View>
         <Button class="contact-tip" open-type="contact" send-message-path>
-            <Image src="https://lxt-block.oss-cn-beijing.aliyuncs.com/tmpImg/1567999499801.png"></Image>
+          <Image src="https://lxt-block.oss-cn-beijing.aliyuncs.com/tmpImg/1567999499801.png"></Image>
         </Button>
       </View>
     )

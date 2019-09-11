@@ -21,7 +21,7 @@
 		}
 	},
 	"compileType": "miniprogram",
-	"simulatorType": "惠子家",
+	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"condition": {}
 }
